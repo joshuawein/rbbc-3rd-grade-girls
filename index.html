@@ -1,0 +1,145 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>*{box-sizing:border-box}body{margin:0}</style>
+<title>RBBC 3rd Grade Girls</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: scoreboard-style standings up top, then week-by-week schedule cards in a single readable column */
+:root{
+  --bg:#f6f4ef; --surface:#ffffff; --line:#e2ddd2; --fg:#1d2420; --muted:#66706a;
+  --accent:#e2671f; --court:#1f5b45; --courtfg:#f3f7f4; --win:#1f7a4f; --chip:#efe9dd;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,Segoe UI,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141917; --surface:#1c2320; --line:#2e3833; --fg:#e8ece9; --muted:#9aa59f;
+  --accent:#f08a46; --court:#173f31; --courtfg:#eaf3ee; --win:#5cc28f; --chip:#25302b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --surface:#1c2320; --line:#2e3833; --fg:#e8ece9; --muted:#9aa59f;
+  --accent:#f08a46; --court:#173f31; --courtfg:#eaf3ee; --win:#5cc28f; --chip:#25302b; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:32px}
+header{display:flex;flex-direction:column;gap:4px}
+.eyebrow{font-family:var(--display);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-size:14px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,7vw,52px);line-height:1;margin:0;text-wrap:balance;text-transform:uppercase}
+.sub{color:var(--muted);margin:6px 0 0}
+h2{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:20px;margin:0 0 12px}
+.board{background:var(--court);color:var(--courtfg);border-radius:10px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:12px 10px;text-align:center;white-space:nowrap}
+th{font-family:var(--display);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px;opacity:.75;border-bottom:1px solid rgba(255,255,255,.15)}
+td{font-size:16px;border-bottom:1px solid rgba(255,255,255,.08)}
+tr:last-child td{border-bottom:0}
+th:nth-child(2),td:nth-child(2){text-align:left}
+td.team{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.02em}
+td.rank{font-family:var(--display);font-weight:700;color:var(--accent);width:28px}
+td.rec{font-family:var(--display);font-weight:700;font-size:20px}
+.note{color:var(--muted);font-size:13px;margin-top:10px}
+.weeks{display:flex;flex-direction:column;gap:14px}
+.week{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.week-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.week-h .d{font-family:var(--display);font-weight:700;font-size:18px;text-transform:uppercase;letter-spacing:.04em}
+.pill{font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--chip);color:var(--muted)}
+.pill.next{background:var(--accent);color:#fff}
+.game{display:grid;grid-template-columns:62px 1fr auto;gap:12px;align-items:center;padding:12px 14px}
+.game+.game{border-top:1px solid var(--line)}
+.time{font-family:var(--display);font-weight:600;color:var(--muted);font-size:16px}
+.match{display:flex;flex-direction:column;gap:2px;min-width:0}
+.side{display:flex;justify-content:space-between;gap:12px;font-weight:500}
+.side .s{font-variant-numeric:tabular-nums;font-weight:600;min-width:2ch;text-align:right}
+.side.w{color:var(--win);font-weight:600}
+.status{font-size:12px;color:var(--muted);text-align:right;min-width:44px}
+.off{padding:12px 14px;color:var(--muted)}
+footer{color:var(--muted);font-size:13px}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Roslyn Booster Basketball Club</div>
+    <h1>3rd Grade Girls</h1>
+    <p class="sub">2026–27 season · All games Saturdays at Harbor Hill · <span id="updated"></span></p>
+  </header>
+
+  <section>
+    <h2>Standings</h2>
+    <div class="board"><table>
+      <thead><tr><th>#</th><th>Team</th><th>W-L-T</th><th>GP</th><th>PF</th><th>PA</th><th>Diff</th></tr></thead>
+      <tbody id="standings"></tbody>
+    </table></div>
+    <p class="note">Ranked by win percentage (ties count as half a win). Playoff seeding follows RBBC rules: record, then head-to-head, then record vs. the next highest seed, then coin toss.</p>
+  </section>
+
+  <section>
+    <h2>Schedule &amp; Results</h2>
+    <div class="weeks" id="weeks"></div>
+  </section>
+
+  <footer>Scores are updated weekly by the commissioner. Questions or corrections, contact Josh Wein.</footer>
+</div>
+
+<script>
+const UPDATED = "Nov 7, 2026";
+const TEAMS = ["Saper","Kosoglyadov","Stier","Wein"];
+// Enter scores as hs (first team) and as (second team). null = not played yet.
+const WEEKS = [
+  {date:"2026-10-31", label:"Sat Oct 31", off:"No games, Harbor Hill closed"},
+  {date:"2026-11-07", label:"Sat Nov 7", games:[
+    {t:"2:00", a:"Saper", b:"Kosoglyadov", as:5, bs:4},
+    {t:"3:00", a:"Stier", b:"Wein", as:6, bs:13}]},
+  {date:"2026-11-14", label:"Sat Nov 14", games:[
+    {t:"2:00", a:"Kosoglyadov", b:"Stier", as:null, bs:null},
+    {t:"3:00", a:"Saper", b:"Wein", as:null, bs:null}]},
+  {date:"2026-11-21", label:"Sat Nov 21", games:[
+    {t:"2:00", a:"Kosoglyadov", b:"Wein", as:null, bs:null},
+    {t:"3:00", a:"Saper", b:"Stier", as:null, bs:null}]},
+  {date:"2026-11-28", label:"Sat Nov 28", off:"No games, Thanksgiving weekend"},
+  {date:"2026-12-05", label:"Sat Dec 5", games:[
+    {t:"2:00", a:"Stier", b:"Wein", as:null, bs:null},
+    {t:"3:00", a:"Saper", b:"Kosoglyadov", as:null, bs:null}]},
+  {date:"2026-12-12", label:"Sat Dec 12", games:[
+    {t:"2:00", a:"Saper", b:"Wein", as:null, bs:null},
+    {t:"3:00", a:"Kosoglyadov", b:"Stier", as:null, bs:null}]},
+  {date:"2026-12-19", label:"Sat Dec 19", games:[
+    {t:"2:00", a:"Saper", b:"Stier", as:null, bs:null},
+    {t:"3:00", a:"Kosoglyadov", b:"Wein", as:null, bs:null}]},
+  {date:"2026-12-26", label:"Sat Dec 26", off:"No games, Christmas weekend"}
+];
+
+const played = g => g.as!=null && g.bs!=null;
+
+function standings(){
+  const s = Object.fromEntries(TEAMS.map(t=>[t,{team:t,w:0,l:0,t:0,pf:0,pa:0}]));
+  WEEKS.forEach(wk=>(wk.games||[]).filter(played).forEach(g=>{
+    const A=s[g.a], B=s[g.b];
+    A.pf+=g.as; A.pa+=g.bs; B.pf+=g.bs; B.pa+=g.as;
+    if(g.as>g.bs){A.w++;B.l++} else if(g.bs>g.as){B.w++;A.l++} else {A.t++;B.t++}
+  }));
+  const pct = r => { const gp=r.w+r.l+r.t; return gp ? (r.w+r.t/2)/gp : 0; };
+  return Object.values(s).sort((x,y)=> pct(y)-pct(x) || (y.pf-y.pa)-(x.pf-x.pa) || x.team.localeCompare(y.team));
+}
+
+function render(){
+  document.getElementById("updated").textContent = "Updated " + UPDATED;
+  const rows = standings();
+  document.getElementById("standings").innerHTML = rows.map((r,i)=>{
+    const gp=r.w+r.l+r.t, d=r.pf-r.pa;
+    return `<tr><td class="rank">${i+1}</td><td class="team">${r.team}</td><td class="rec">${r.w}-${r.l}-${r.t}</td><td>${gp}</td><td>${r.pf}</td><td>${r.pa}</td><td>${gp?(d>0?"+":"")+d:"0"}</td></tr>`;
+  }).join("");
+
+  const nextIdx = WEEKS.findIndex(w=>w.games && w.games.some(g=>!played(g)));
+  document.getElementById("weeks").innerHTML = WEEKS.map((wk,i)=>{
+    if(wk.off) return `<div class="week"><div class="week-h"><span class="d">${wk.label}</span><span class="pill">Off</span></div><div class="off">${wk.off}</div></div>`;
+    const done = wk.games.every(played);
+    const pill = done ? `<span class="pill">Final</span>` : (i===nextIdx ? `<span class="pill next">Up next</span>` : `<span class="pill">Upcoming</span>`);
+    const games = wk.games.map(g=>{
+      const p=played(g), aw=p&&g.as>g.bs, bw=p&&g.bs>g.as;
+      return `<div class="game"><div class="time">${g.t} PM</div><div class="match">
+        <div class="side${aw?" w":""}"><span>${g.a}</span><span class="s">${p?g.as:""}</span></div>
+        <div class="side${bw?" w":""}"><span>${g.b}</span><span class="s">${p?g.bs:""}</span></div>
+      </div><div class="status">${p?(g.as===g.bs?"Draw":"Final"):""}</div></div>`;
+    }).join("");
+    return `<div class="week"><div class="week-h"><span class="d">${wk.label}</span>${pill}</div>${games}</div>`;
+  }).join("");
+}
+render();
+</script>
+</html>
