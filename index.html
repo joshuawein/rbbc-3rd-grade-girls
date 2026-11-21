@@ -66,7 +66,7 @@ footer{color:var(--muted);font-size:13px}
       <thead><tr><th>#</th><th>Team</th><th>W-L-T</th><th>GP</th><th>PF</th><th>PA</th><th>Diff</th></tr></thead>
       <tbody id="standings"></tbody>
     </table></div>
-    <p class="note">Ranked by win percentage (ties count as half a win). Playoff seeding follows RBBC rules: record, then head-to-head, then record vs. the next highest seed, then coin toss.</p>
+    <p class="note">Ranked by win percentage (ties count as half a win). Forfeits are recorded as 1-0. Playoff seeding follows RBBC rules: record, then head-to-head, then record vs. the next highest seed, then coin toss.</p>
   </section>
 
   <section>
@@ -78,7 +78,7 @@ footer{color:var(--muted);font-size:13px}
 </div>
 
 <script>
-const UPDATED = "Nov 14, 2026";
+const UPDATED = "Nov 21, 2026";
 const TEAMS = ["Saper","Kosoglyadov","Stier","Wein"];
 // Enter scores as hs (first team) and as (second team). null = not played yet.
 const WEEKS = [
@@ -89,8 +89,8 @@ const WEEKS = [
     {t:"2:00", a:"Kosoglyadov", b:"Stier", as:6, bs:30},
     {t:"3:00", a:"Saper", b:"Wein", as:10, bs:14}]},
   {date:"2026-11-21", label:"Sat Nov 21", games:[
-    {t:"2:00", a:"Kosoglyadov", b:"Wein", as:null, bs:null},
-    {t:"3:00", a:"Saper", b:"Stier", as:null, bs:null}]},
+    {t:"2:00", a:"Kosoglyadov", b:"Wein", as:1, bs:0, ff:true},
+    {t:"3:00", a:"Saper", b:"Stier", as:1, bs:0, ff:true}]},
   {date:"2026-11-28", label:"Sat Nov 28", off:"No games, Thanksgiving weekend"},
   {date:"2026-12-05", label:"Sat Dec 5", games:[
     {t:"2:00", a:"Stier", b:"Wein", as:null, bs:null},
@@ -135,8 +135,8 @@ function render(){
       return `<div class="game"><div class="time">${g.t} PM</div><div class="match">
         <div class="side${aw?" w":""}"><span>${g.a}</span><span class="s">${p?g.as:""}</span></div>
         <div class="side${bw?" w":""}"><span>${g.b}</span><span class="s">${p?g.bs:""}</span></div>
-        <div class="loc">Harbor Hill School</div>
-      </div><div class="status">${p?(g.as===g.bs?"Draw":"Final"):""}</div></div>`;
+        <div class="loc">Harbor Hill School${g.ff?" · Forfeit, not enough players":""}</div>
+      </div><div class="status">${p?(g.ff?"Forfeit":(g.as===g.bs?"Draw":"Final")):""}</div></div>`;
     }).join("");
     return `<div class="week"><div class="week-h"><span class="d">${wk.label}</span>${pill}</div>${games}</div>`;
   }).join("");
