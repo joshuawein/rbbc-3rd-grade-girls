@@ -48,6 +48,7 @@ td.rec{font-family:var(--display);font-weight:700;font-size:20px}
 .side .s{font-variant-numeric:tabular-nums;font-weight:600;min-width:2ch;text-align:right}
 .side.w{color:var(--win);font-weight:600}
 .loc{font-size:12px;color:var(--muted);margin-top:2px}
+.gname{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:var(--accent)}
 .status{font-size:12px;color:var(--muted);text-align:right;min-width:44px}
 .off{padding:12px 14px;color:var(--muted)}
 footer{color:var(--muted);font-size:13px}
@@ -72,6 +73,12 @@ footer{color:var(--muted);font-size:13px}
   <section>
     <h2>Schedule &amp; Results</h2>
     <div class="weeks" id="weeks"></div>
+  </section>
+
+  <section>
+    <h2>Playoffs</h2>
+    <p class="note" style="margin:0 0 12px">Seeds set by final regular season standings. Semifinal winners play for the championship; semifinal losers play for third place.</p>
+    <div class="weeks" id="playoffs"></div>
   </section>
 
   <footer>Scores are updated weekly by the commissioner. Questions or corrections, contact Josh Wein.</footer>
@@ -126,6 +133,17 @@ const WEEKS = [
     {t:"3:00", a:"Kosoglyadov", b:"Wein", as:null, bs:null}]}
 ];
 
+// Playoffs. Replace seed/winner placeholders with team names once known.
+const PLAYOFFS = [
+  {date:"2027-03-13", label:"Sat Mar 13", round:"Semifinals", games:[
+    {t:"2:00", name:"Semifinal 1", a:"#1 seed", b:"#4 seed", as:null, bs:null},
+    {t:"3:00", name:"Semifinal 2", a:"#2 seed", b:"#3 seed", as:null, bs:null}]},
+  {date:"2027-03-20", label:"Sat Mar 20", round:"Finals", games:[
+    {t:"2:00", name:"3rd place game", a:"Semifinal 1 loser", b:"Semifinal 2 loser", as:null, bs:null},
+    {t:"3:00", name:"Championship", a:"Semifinal 1 winner", b:"Semifinal 2 winner", as:null, bs:null}]},
+  {date:"2027-03-27", label:"Sat Mar 27", off:"Makeup date, used only if a playoff game is postponed", pill:"Reserve"}
+];
+
 const played = g => g.as!=null && g.bs!=null;
 
 function standings(){
@@ -147,21 +165,25 @@ function render(){
     return `<tr><td class="rank">${i+1}</td><td class="team">${r.team}</td><td class="rec">${r.w}-${r.l}-${r.t}</td><td>${gp}</td><td>${r.pf}</td><td>${r.pa}</td><td>${gp?(d>0?"+":"")+d:"0"}</td></tr>`;
   }).join("");
 
-  const nextIdx = WEEKS.findIndex(w=>w.games && w.games.some(g=>!played(g)));
-  document.getElementById("weeks").innerHTML = WEEKS.map((wk,i)=>{
-    if(wk.off) return `<div class="week"><div class="week-h"><span class="d">${wk.label}</span><span class="pill">Off</span></div><div class="off">${wk.off}</div></div>`;
+  const ALL = WEEKS.concat(PLAYOFFS);
+  const nextIdx = ALL.findIndex(w=>w.games && w.games.some(g=>!played(g)));
+  const weekHtml = (wk,i)=>{
+    if(wk.off) return `<div class="week"><div class="week-h"><span class="d">${wk.label}</span><span class="pill">${wk.pill||"Off"}</span></div><div class="off">${wk.off}</div></div>`;
     const done = wk.games.every(played);
-    const pill = done ? `<span class="pill">Final</span>` : (i===nextIdx ? `<span class="pill next">Up next</span>` : `<span class="pill">Upcoming</span>`);
+    const pill = done ? `<span class="pill">Final</span>` : (i===nextIdx ? `<span class="pill next">Up next</span>` : `<span class="pill">${wk.round||"Upcoming"}</span>`);
     const games = wk.games.map(g=>{
       const p=played(g), aw=p&&g.as>g.bs, bw=p&&g.bs>g.as;
       return `<div class="game"><div class="time">${g.t} PM</div><div class="match">
+        ${g.name?`<div class="gname">${g.name}</div>`:""}
         <div class="side${aw?" w":""}"><span>${g.a}</span><span class="s">${p?g.as:""}</span></div>
         <div class="side${bw?" w":""}"><span>${g.b}</span><span class="s">${p?g.bs:""}</span></div>
         <div class="loc">Harbor Hill School${g.ff?" · Forfeit, not enough players":""}</div>
       </div><div class="status">${p?(g.ff?"Forfeit":(g.as===g.bs?"Draw":"Final")):""}</div></div>`;
     }).join("");
     return `<div class="week"><div class="week-h"><span class="d">${wk.label}</span>${pill}</div>${games}</div>`;
-  }).join("");
+  };
+  document.getElementById("weeks").innerHTML = WEEKS.map((wk,i)=>weekHtml(wk,i)).join("");
+  document.getElementById("playoffs").innerHTML = PLAYOFFS.map((wk,i)=>weekHtml(wk,WEEKS.length+i)).join("");
 }
 render();
 </script>
